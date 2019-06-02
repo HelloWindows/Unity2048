@@ -10,4 +10,5 @@ public class ValueUtil {
     public static float GridSpeed { get { return 0.5f; } }
     public static int GridRow { get { return 4; } }
     public static int GridColumn { get { return 4; } }
+    public static int MaxRecordCount { get { return 3; } }
 }

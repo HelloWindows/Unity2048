@@ -48,7 +48,7 @@ public class NodeZoomAnim : MonoBehaviour {
         if (ZoomOut_2()) return;
         // end if
         if (null != m_AnimationFinishedEventHandler)
-            m_AnimationFinishedEventHandler(this, null);
+            m_AnimationFinishedEventHandler(this, EventArgs.Empty);
         // end if
         enabled = false;
     } // end Update

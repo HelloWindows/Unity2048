@@ -5,6 +5,9 @@ using UnityEngine;
 public abstract class UIForm 
 {
     public abstract void OnEnter();
-    public abstract void OnUpdate();
+    public virtual void OnUpdate()
+    {
+
+    } // end Update
     public abstract void OnExit();
 } // end class UIForm

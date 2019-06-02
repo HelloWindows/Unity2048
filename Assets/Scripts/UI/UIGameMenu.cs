@@ -11,36 +11,52 @@ public class UIGameMenu : UIForm
 
     public override void OnEnter()
     {
+        Global.GameStatus = GameStatus.Operating;
         GameObject prefab = Resources.Load<GameObject>(m_PrefabPath);
         m_GameObject = Object.Instantiate(prefab, UIManager.Instance.Canvas.transform);
         m_GameObject.transform.Find("UndoBtn").GetComponent<Button>().onClick.AddListener(OnClickUndoBtn);
         m_GameObject.transform.Find("SaveBtn").GetComponent<Button>().onClick.AddListener(OnClickSaveBtn);
         m_GameObject.transform.Find("BackBtn").GetComponent<Button>().onClick.AddListener(OnClickBackBtn);
         m_ScoreText = m_GameObject.transform.Find("ScoreText/Text").GetComponent<Text>();
+        if(null != GameManager.Instance.CheckerboardControl)
+            GameManager.Instance.CheckerboardControl.OnScoreChanged += OnScoreChanged;
+        // end if
     } // end OnEnter
 
     public override void OnExit()
     {
+        if (null != GameManager.Instance.CheckerboardControl)
+            GameManager.Instance.CheckerboardControl.OnScoreChanged -= OnScoreChanged;
+        // end if
         if (null == m_GameObject) return;
         // end if
         Object.Destroy(m_GameObject);
     } // end OnExit
 
-    public override void OnUpdate()
-    {
-
-    } // end OnUpdate
-
     private void OnClickUndoBtn()
     {
+        GameManager.Instance.CheckerboardControl.Undo();
     } // end OnClickUndoBtn
 
     private void OnClickSaveBtn()
     {
+        GameManager.Instance.ExitGame();
+        UIManager.Instance.OpenForm(new UISaveGameProgress());
     } // end OnClickSaveBtn
 
     private void OnClickBackBtn()
     {
+        GameManager.Instance.ExitGame();
         UIManager.Instance.OpenForm(new UIStartMenu());
     } // end OnClickBackBtn
-} // end  class UIStartMenu
+
+    private void OnScoreChanged(object sender, ScoreChangedEventArgs args)
+    {
+        if (null == args)
+        {
+            Debug.LogError("UIGameMenu OnScoreChanged args is null");
+            return;
+        } // end if
+        m_ScoreText.text = args.Score.ToString();
+    } // end OnScoreChanged
+} // end  class UIGameMenu

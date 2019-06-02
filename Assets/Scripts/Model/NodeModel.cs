@@ -1,18 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
 
+[Serializable]
 public class NodeModel {
 
-    public NodeModel()
-	{
-		Number = 0;
-		IsMerge = false;
-    } // end NodeModel
     public int Number { get; private set; }
     public int MoveStep { get; private set; }
     public bool IsMerge { get; private set; }
     public bool IsZoom { get; private set; }
+
+    public NodeModel()
+    {
+        Number = 0;
+        IsMerge = false;
+    } // end NodeModel
 
     public void Move()
     {

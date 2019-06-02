@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [DisallowMultipleComponent]
 public class GameManager : MonoBehaviour {
-
     private static GameManager m_GameManager;
-    private CheckerboardControl m_CheckerboardControl;
 
     public static GameManager Instance
     {
@@ -20,6 +15,8 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public CheckerboardControl CheckerboardControl { get; private set; }
+
     private void Awake()
     {
         m_GameManager = this;
@@ -29,24 +26,39 @@ public class GameManager : MonoBehaviour {
     void Start () 
 	{
         UIManager.Instance.OpenForm(new UIStartMenu());
-    }
+    } // end Start
 	
 	// Update is called once per frame
 	void Update () 
 	{
-        if (null == m_CheckerboardControl) return;
+        if (null == CheckerboardControl) return;
         // end if
-        m_CheckerboardControl.Update(Time.deltaTime, Time.unscaledDeltaTime);
-    }
+        CheckerboardControl.Update(Time.deltaTime, Time.unscaledDeltaTime);
+    } // end Update
 
     public void NewGame()
     {
-        m_CheckerboardControl = new CheckerboardControl(transform);
-    }
+        Global.GameMode = GameMode.Interactive;
+        GameObject checkerboardGo = new GameObject("Checkerboard");
+        checkerboardGo.transform.SetParent(transform, Vector3.zero, Quaternion.identity, Vector3.one);
+        CheckerboardControl = new CheckerboardControl(checkerboardGo);
+        UIManager.Instance.OpenForm(new UIGameMenu());
+    } // end NewGame
+
+    public void ContinueGame(string recordPath)
+    {
+        Global.GameMode = GameMode.Interactive;
+        GameObject checkerboardGo = new GameObject("Checkerboard");
+        checkerboardGo.transform.SetParent(transform, Vector3.zero, Quaternion.identity, Vector3.one);
+        CheckerboardControl = new CheckerboardControl(checkerboardGo, recordPath);
+        UIManager.Instance.OpenForm(new UIGameMenu());
+    } // end ContinueGame
 
     public void ExitGame()
     {
-
-    }
-
-}
+        if (null == CheckerboardControl) return;
+        // end if
+        CheckerboardControl.Dispose();
+        CheckerboardControl = null;
+    } // end ExitGame
+} // end class GameManager

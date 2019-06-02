@@ -1,0 +1,2 @@
+# Solider
+bagin AwakeScene

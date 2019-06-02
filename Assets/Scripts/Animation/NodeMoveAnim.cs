@@ -3,6 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public enum NodeMoveDirection : int
+{
+    Null = 0,
+    Up = 1,
+    Down = 2,
+    Left = 3,
+    Right = 4
+} // end enum NodeMoveDirection
+
 public class NodeMoveAnim : MonoBehaviour {
 
     private float m_Speed;
@@ -40,7 +50,7 @@ public class NodeMoveAnim : MonoBehaviour {
         else
         {
             if (null != m_AnimationFinishedEventHandler)
-                m_AnimationFinishedEventHandler(this, null);
+                m_AnimationFinishedEventHandler(this, EventArgs.Empty);
             // end if
             enabled = false;
         } // end if

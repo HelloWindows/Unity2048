@@ -1,13 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
-public class CheckerboardView
+public class CheckerboardView : IDisposable
 {
     private int m_GridSign;
     private readonly int m_MaxGridSign;
-    private NodeView[,] m_NodeMatrix;
+    private readonly NodeView[,] m_NodeMatrix;
     private SpriteRenderer m_BgSprite;
     private EventHandler m_AnimationFinishedEventHandler = null;
+    private readonly TouchBoardWidget m_TouchBoardWidget;
 
     public CheckerboardView(Transform parent)
     {
@@ -15,6 +16,8 @@ public class CheckerboardView
         m_BgSprite.transform.SetParent(parent, Vector3.zero, Quaternion.identity, Vector3.one);
         m_BgSprite.sprite = SpriteUtil.BgSprite;
         m_BgSprite.sortingOrder = -1;
+        m_BgSprite.gameObject.AddComponent<BoxCollider2D>();
+        m_TouchBoardWidget = m_BgSprite.gameObject.AddComponent<TouchBoardWidget>();
         Transform nodeParent = new GameObject("nodeMatrix").transform;
         nodeParent.SetParent(parent, Vector3.zero, Quaternion.identity, Vector3.one);
         m_NodeMatrix = new NodeView[ValueUtil.GridRow, ValueUtil.GridColumn];
@@ -49,9 +52,22 @@ public class CheckerboardView
         }
     }
 
+    public event EventHandler<TouchDropEventArgs> TouchDropEvent
+    {
+        add
+        {
+            m_TouchBoardWidget.TouchDropEventHandler += value;
+        }
+        remove
+        {
+            m_TouchBoardWidget.TouchDropEventHandler -= value;
+        }
+    }
+
     public void PlayAnimation(CheckerboardModel model)
     {
         m_GridSign = 0;
+        Vector3 direction = model.Direction;
         for (int i = 0; i < ValueUtil.GridRow; i++)
         {
             for (int j = 0; j < ValueUtil.GridColumn; j++)
@@ -62,7 +78,7 @@ public class CheckerboardView
                     m_GridSign++;
                     continue;
                 } // end if
-                m_NodeMatrix[i, j].ToMove(model.Direction, step);
+                m_NodeMatrix[i, j].ToMove(direction, step);
             } // end for
         } // end for
     } // end PlayAnimation
@@ -92,7 +108,16 @@ public class CheckerboardView
         if (m_GridSign < m_MaxGridSign) return;
         // end if
         if (null != m_AnimationFinishedEventHandler)
-            m_AnimationFinishedEventHandler(this, null);
+            m_AnimationFinishedEventHandler(this, EventArgs.Empty);
         // end if
     } // end OnGridMoveFinished
+
+    public void Dispose()
+    {
+        m_AnimationFinishedEventHandler = null;
+        foreach (NodeView node in m_NodeMatrix)
+        {
+            node.AnimationMoveFinished -= OnGridMoveFinished;
+        } // end foreach
+    } // end Dispose
 } // end class CheckerboardView

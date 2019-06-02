@@ -2,30 +2,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CheckerboardModel 
+public class CheckerboardModel : System.IDisposable
 {
-    private readonly NodeModel[,] m_NodeMatrix;
+    private NodeMoveDirection m_Direction;
+    private Matrix<NodeModel> m_NodeMatrix;
 
-	public CheckerboardModel() 
-	{
-        Direction = Vector3.zero;
-        m_NodeMatrix = new NodeModel[4, 4];
-        for (int x = 0; x < 4; x++)
-		{
-			for (int y = 0; y < 4; y++)
-			{
-				m_NodeMatrix[x, y] = new NodeModel();
+    public CheckerboardModel()
+    {
+        m_Direction = NodeMoveDirection.Null;
+        m_NodeMatrix = new Matrix<NodeModel>(ValueUtil.GridRow, ValueUtil.GridColumn);
+        for (int x = 0; x < ValueUtil.GridRow; x++)
+        {
+            for (int y = 0; y < ValueUtil.GridColumn; y++)
+            {
+                m_NodeMatrix[x, y] = new NodeModel();
             } // end for
-		} // end for
-	} // end CheckerboardModel
-
-    public Vector3 Direction { get; private set; }
-
-    public void Init() 
-	{
-		PushNewNumber();
+        } // end for
         PushNewNumber();
-    } // end Init
+        PushNewNumber();
+    } // end CheckerboardModel
+
+    public Vector3 Direction {
+        get
+        {
+            switch (m_Direction)
+            {
+                case NodeMoveDirection.Up: return Vector3.up;
+                case NodeMoveDirection.Down: return Vector3.down;
+                case NodeMoveDirection.Left: return Vector3.left;
+                case NodeMoveDirection.Right: return Vector3.right;
+            } // end switch
+            return Vector3.zero;
+        }
+    }
+
+    public Matrix<NodeModel> NodeMatrix
+    {
+        get
+        {
+            return CopyUtil.DeepCopyByBin(m_NodeMatrix);
+        }
+        set
+        {
+            if (null == value) return;
+            // end if
+            Matrix<NodeModel> matrix = CopyUtil.DeepCopyByBin(value);
+            if (null == matrix) return;
+            // end if
+            m_NodeMatrix = matrix;
+        }
+    }
+
+    public int Score { get { return m_NodeMatrix.Score; } }
 
     public NodeModel GetNodeModel(int x, int y)
     {
@@ -36,21 +64,21 @@ public class CheckerboardModel
     private void PushNewNumber() 
 	{
 		List<int> emptyList = new List<int>();
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < ValueUtil.GridRow; i++)
 		{
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < ValueUtil.GridColumn; j++)
 			{
                 if (0 != m_NodeMatrix[i, j].Number) continue;
 				// end if
-				emptyList.Add(i * 4 + j);
+				emptyList.Add(i * ValueUtil.GridColumn + j);
 			} // end for
 		} // end for
 		if(0 == emptyList.Count) return;
 		// end if
 		int number = Random.Range(0, 2) == 0 ? 2 : 4;
 		int index = emptyList[Random.Range(0, emptyList.Count)];
-		int x = index / 4;
-		int y = index % 4;
+		int x = index / ValueUtil.GridColumn;
+		int y = index % ValueUtil.GridColumn;
         NodeModel node = m_NodeMatrix[x, y];
         node.Zoom();
         node.SetNumber(number);
@@ -58,11 +86,11 @@ public class CheckerboardModel
 
     public void ToUp()
     {
-        Direction = Vector3.up;
-        NodeModel[] nodeArr = new NodeModel[4];
-        for (int x = 0; x < nodeArr.Length; x++)
+        m_Direction = NodeMoveDirection.Up;
+        NodeModel[] nodeArr = new NodeModel[ValueUtil.GridRow];
+        for (int x = 0; x < ValueUtil.GridColumn; x++)
         {
-            for (int y = 0; y < nodeArr.Length; y++)
+            for (int y = 0; y < ValueUtil.GridRow; y++)
             {
                 nodeArr[y] = m_NodeMatrix[y, x];
                 nodeArr[y].Reset();
@@ -74,12 +102,12 @@ public class CheckerboardModel
     public void ToDown()
     {
         int index = 0;
-        Direction = Vector3.down;
-        NodeModel[] nodeArr = new NodeModel[4];
-        for (int x = 0; x < nodeArr.Length; x++)
+        m_Direction = NodeMoveDirection.Down;
+        NodeModel[] nodeArr = new NodeModel[ValueUtil.GridRow];
+        for (int x = 0; x < ValueUtil.GridColumn; x++)
         {
             index = 0;
-            for (int y = 3; y >= 0; y--)
+            for (int y = ValueUtil.GridRow - 1; y >= 0; y--)
             {
                 nodeArr[index] = m_NodeMatrix[y, x];
                 nodeArr[index].Reset();
@@ -91,11 +119,11 @@ public class CheckerboardModel
 
     public void ToLeft()
     {
-        Direction = Vector3.left;
-        NodeModel[] nodeArr = new NodeModel[4];
-        for (int x = 0; x < nodeArr.Length; x++)
+        m_Direction = NodeMoveDirection.Left;
+        NodeModel[] nodeArr = new NodeModel[ValueUtil.GridColumn];
+        for (int x = 0; x < ValueUtil.GridRow; x++)
         {
-            for (int y = 0; y < nodeArr.Length; y++)
+            for (int y = 0; y < ValueUtil.GridColumn; y++)
             {
                 nodeArr[y] = m_NodeMatrix[x, y];
                 nodeArr[y].Reset();
@@ -107,12 +135,12 @@ public class CheckerboardModel
     public void ToRight()
     {
         int index = 0;
-        Direction = Vector3.right;
-        NodeModel[] nodeArr = new NodeModel[4];
-        for (int x = 0; x < nodeArr.Length; x++)
+        m_Direction = NodeMoveDirection.Right;
+        NodeModel[] nodeArr = new NodeModel[ValueUtil.GridColumn];
+        for (int x = 0; x < ValueUtil.GridRow; x++)
         {
             index = 0;
-            for (int y = 3; y >= 0; y--)
+            for (int y = ValueUtil.GridColumn - 1; y >= 0; y--)
             {
                 nodeArr[index] = m_NodeMatrix[x, y];
                 nodeArr[index].Reset();
@@ -145,6 +173,7 @@ public class CheckerboardModel
                 }
                 else if (nodeArr[j].Number == nodeArr[j + 1].Number && !nodeArr[j].IsMerge && !nodeArr[j + 1].IsMerge)
                 {
+                    m_NodeMatrix.Score += nodeArr[j].Number;
                     nodeArr[j].Merge();
                     nodeArr[j + 1].SetZero();
                     nodeArr[j].Zoom();
@@ -179,9 +208,9 @@ public class CheckerboardModel
     public void Log()
 	{
 		string str = "";
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < ValueUtil.GridRow; i++)
 		{
-			for (int j = 0; j < 4; j++)
+			for (int j = 0; j < ValueUtil.GridColumn; j++)
 			{
 				str += m_NodeMatrix[i, j].Number + " ";
 			}
@@ -189,4 +218,8 @@ public class CheckerboardModel
 		}
 		Debug.Log(str);
 	}
+
+    public void Dispose()
+    {
+    } // end Dispose
 } // end CheckerboardModel
