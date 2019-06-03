@@ -14,6 +14,7 @@ public class UIGameOver : UIForm
         m_GameObject = Object.Instantiate(prefab, UIManager.Instance.Canvas.transform);
         m_GameObject.transform.Find("ContinueBtn").GetComponent<Button>().onClick.AddListener(OnClickContinueBtn);
         m_GameObject.transform.Find("ReplayBtn").GetComponent<Button>().onClick.AddListener(OnClickReplayBtn);
+        m_GameObject.transform.Find("SaveViewBtn").GetComponent<Button>().onClick.AddListener(OnClickSaveViewBtn);
         m_GameObject.transform.Find("MenuBtn").GetComponent<Button>().onClick.AddListener(OnClickBackBtn);
     } // end OnEnter
 
@@ -35,6 +36,14 @@ public class UIGameOver : UIForm
         GameManager.Instance.ExitGame();
         GameManager.Instance.NewGame();
     } // end OnClickReplayBtn
+
+    private void OnClickSaveViewBtn()
+    {
+        if (string.IsNullOrEmpty(PathUtil.ViewRecordPath) || !File.Exists(PathUtil.CurrentRecordPath)) return;
+        // end if
+        File.Copy(PathUtil.CurrentRecordPath, PathUtil.ViewRecordPath, true);
+        OnClickBackBtn();
+    } // end OnClickSaveViewBtn
 
     private void OnClickBackBtn()
     {

@@ -7,7 +7,8 @@ public class CheckerboardView : IDisposable
     private readonly int m_MaxGridSign;
     private readonly NodeView[,] m_NodeMatrix;
     private SpriteRenderer m_BgSprite;
-    private EventHandler m_AnimationFinishedEventHandler = null;
+    private EventHandler m_MoveAnimationFinishedEventHandler = null;
+    private EventHandler m_ZoomAnimationFinishedEventHandler = null;
     private readonly TouchBoardWidget m_TouchBoardWidget;
 
     public CheckerboardView(Transform parent)
@@ -35,20 +36,33 @@ public class CheckerboardView : IDisposable
                 nodeTrans.SetParent(nodeParent, new Vector3(x, y), Quaternion.identity, Vector3.one);
                 NodeView nodeView = nodeTrans.gameObject.AddComponent<NodeView>();
                 nodeView.AnimationMoveFinished += OnGridMoveFinished;
+                nodeView.AnimationZoomFinished += OnGridZoomFinish;
                 m_NodeMatrix[i, j] = nodeView;
             } // end for
         } // end for
     } // end Awake
 
-    public event EventHandler AnimationFinished
+    public event EventHandler MoveAnimationFinished
     {
         add
         {
-            m_AnimationFinishedEventHandler += value;
+            m_MoveAnimationFinishedEventHandler += value;
         }
         remove
         {
-            m_AnimationFinishedEventHandler -= value;
+            m_MoveAnimationFinishedEventHandler -= value;
+        }
+    }
+
+    public event EventHandler ZoomAnimationFinished
+    {
+        add
+        {
+            m_ZoomAnimationFinishedEventHandler += value;
+        }
+        remove
+        {
+            m_ZoomAnimationFinishedEventHandler -= value;
         }
     }
 
@@ -64,15 +78,23 @@ public class CheckerboardView : IDisposable
         }
     }
 
-    public void PlayAnimation(CheckerboardModel model)
+    public void PlayFrameAnimation(Matrix<NodeModel> matrix)
     {
+        PlayMoveAnimation(matrix);
+        PlayZoomAnimation(matrix);
+    } // end PlayFrameAnimation
+
+    public void PlayMoveAnimation(Matrix<NodeModel> matrix)
+    {
+        Vector3 direction = matrix.Direction.ToVector3();
+        if (direction.Equals(Vector3.zero)) return;
+        // end if
         m_GridSign = 0;
-        Vector3 direction = model.Direction;
         for (int i = 0; i < ValueUtil.GridRow; i++)
         {
             for (int j = 0; j < ValueUtil.GridColumn; j++)
             {
-                int step = model.GetNodeModel(i, j).MoveStep;
+                int step = matrix[i, j].MoveStep;
                 if (step < 1)
                 {
                     m_GridSign++;
@@ -81,40 +103,63 @@ public class CheckerboardView : IDisposable
                 m_NodeMatrix[i, j].ToMove(direction, step);
             } // end for
         } // end for
-    } // end PlayAnimation
+    } // end PlayMoveAnimation
 
-    public void UpdateView(CheckerboardModel model)
+    public void PlayZoomAnimation(Matrix<NodeModel> matrix)
     {
+        Vector3 direction = matrix.Direction.ToVector3();
+        if (!direction.Equals(Vector3.zero)) return;
+        // end if
         float x = ValueUtil.GridInitX;
         float y = ValueUtil.GridInitY;
-        NodeView nodeView;
+        m_GridSign = 0;
+        NodeView nodeView = null;
+        NodeModel nodeModel = null;
         for (int i = 0; i < ValueUtil.GridRow; i++)
         {
             y = ValueUtil.GridInitY - ValueUtil.GridOffset * i;
             for (int j = 0; j < ValueUtil.GridColumn; j++)
             {
                 x = ValueUtil.GridInitX + ValueUtil.GridOffset * j;
+                nodeModel = matrix[i, j];
                 nodeView = m_NodeMatrix[i, j];
                 nodeView.transform.localPosition = new Vector3(x, y);
                 nodeView.transform.localScale = Vector3.one;
-                nodeView.ToShow(model.GetNodeModel(i, j));
+                nodeView.Sprite = SpriteUtil.GetSprite(nodeModel.Number);
+                if (false == nodeModel.IsZoom)
+                {
+                    m_GridSign++;
+                    continue;
+                } // end if
+                nodeView.ToZoom();
             } // end for
         } // end for
-    } // end UpdateView
+    } // end PlayZoomAnimation
 
     private void OnGridMoveFinished(object sender, EventArgs args)  
     {
         m_GridSign++;
         if (m_GridSign < m_MaxGridSign) return;
         // end if
-        if (null != m_AnimationFinishedEventHandler)
-            m_AnimationFinishedEventHandler(this, EventArgs.Empty);
+        if (null != m_MoveAnimationFinishedEventHandler)
+            m_MoveAnimationFinishedEventHandler(this, EventArgs.Empty);
         // end if
     } // end OnGridMoveFinished
 
+    private void OnGridZoomFinish(object sender, EventArgs args)
+    {
+        m_GridSign++;
+        if (m_GridSign < m_MaxGridSign) return;
+        // end if
+        if (null != m_ZoomAnimationFinishedEventHandler)
+            m_ZoomAnimationFinishedEventHandler(this, EventArgs.Empty);
+        // end if
+    } // end OnGridZoomFinish
+
     public void Dispose()
     {
-        m_AnimationFinishedEventHandler = null;
+        m_MoveAnimationFinishedEventHandler = null;
+        m_ZoomAnimationFinishedEventHandler = null;
         foreach (NodeView node in m_NodeMatrix)
         {
             node.AnimationMoveFinished -= OnGridMoveFinished;

@@ -11,4 +11,16 @@ public static class UnityExtension {
         transform.localRotation = localRot;
         transform.localScale = localSca;
     }
+
+    public static Vector3 ToVector3(this NodeMoveDirection dir)
+    {
+        switch (dir)
+        {
+            case NodeMoveDirection.Up: return Vector3.up;
+            case NodeMoveDirection.Down: return Vector3.down;
+            case NodeMoveDirection.Left: return Vector3.left;
+            case NodeMoveDirection.Right: return Vector3.right;
+        } // end switch
+        return Vector3.zero;
+    }
 }

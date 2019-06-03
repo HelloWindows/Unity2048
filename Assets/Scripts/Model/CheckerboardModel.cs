@@ -4,37 +4,14 @@ using UnityEngine;
 
 public class CheckerboardModel : System.IDisposable
 {
-    private NodeMoveDirection m_Direction;
     private Matrix<NodeModel> m_NodeMatrix;
 
     public CheckerboardModel()
     {
-        m_Direction = NodeMoveDirection.Null;
         m_NodeMatrix = new Matrix<NodeModel>(ValueUtil.GridRow, ValueUtil.GridColumn);
-        for (int x = 0; x < ValueUtil.GridRow; x++)
-        {
-            for (int y = 0; y < ValueUtil.GridColumn; y++)
-            {
-                m_NodeMatrix[x, y] = new NodeModel();
-            } // end for
-        } // end for
         PushNewNumber();
         PushNewNumber();
     } // end CheckerboardModel
-
-    public Vector3 Direction {
-        get
-        {
-            switch (m_Direction)
-            {
-                case NodeMoveDirection.Up: return Vector3.up;
-                case NodeMoveDirection.Down: return Vector3.down;
-                case NodeMoveDirection.Left: return Vector3.left;
-                case NodeMoveDirection.Right: return Vector3.right;
-            } // end switch
-            return Vector3.zero;
-        }
-    }
 
     public Matrix<NodeModel> NodeMatrix
     {
@@ -61,7 +38,7 @@ public class CheckerboardModel : System.IDisposable
     } // end GetNodeModel
 
 
-    private void PushNewNumber() 
+    public void PushNewNumber() 
 	{
 		List<int> emptyList = new List<int>();
 		for (int i = 0; i < ValueUtil.GridRow; i++)
@@ -86,7 +63,7 @@ public class CheckerboardModel : System.IDisposable
 
     public void ToUp()
     {
-        m_Direction = NodeMoveDirection.Up;
+        m_NodeMatrix.Direction = NodeMoveDirection.Up;
         NodeModel[] nodeArr = new NodeModel[ValueUtil.GridRow];
         for (int x = 0; x < ValueUtil.GridColumn; x++)
         {
@@ -102,7 +79,7 @@ public class CheckerboardModel : System.IDisposable
     public void ToDown()
     {
         int index = 0;
-        m_Direction = NodeMoveDirection.Down;
+        m_NodeMatrix.Direction = NodeMoveDirection.Down;
         NodeModel[] nodeArr = new NodeModel[ValueUtil.GridRow];
         for (int x = 0; x < ValueUtil.GridColumn; x++)
         {
@@ -119,7 +96,7 @@ public class CheckerboardModel : System.IDisposable
 
     public void ToLeft()
     {
-        m_Direction = NodeMoveDirection.Left;
+        m_NodeMatrix.Direction = NodeMoveDirection.Left;
         NodeModel[] nodeArr = new NodeModel[ValueUtil.GridColumn];
         for (int x = 0; x < ValueUtil.GridRow; x++)
         {
@@ -135,7 +112,7 @@ public class CheckerboardModel : System.IDisposable
     public void ToRight()
     {
         int index = 0;
-        m_Direction = NodeMoveDirection.Right;
+        m_NodeMatrix.Direction = NodeMoveDirection.Right;
         NodeModel[] nodeArr = new NodeModel[ValueUtil.GridColumn];
         for (int x = 0; x < ValueUtil.GridRow; x++)
         {
@@ -184,14 +161,15 @@ public class CheckerboardModel : System.IDisposable
 		} // end for
 	} // end ProcessNodeGroup
 
-    public bool CheckGameOver()
+    public bool IsGameOver()
     {
-        PushNewNumber();
-        for (int i = 0; i < 4; i++)
+        int row = ValueUtil.GridRow;
+        int column = ValueUtil.GridColumn - 1;
+        for (int i = 0; i < row; i++)
         {
-            if (0 == m_NodeMatrix[i, 3].Number) return false;
+            if (0 == m_NodeMatrix[i, column].Number) return false;
             // end if
-            for (int j = 0; j < 3; j++)
+            for (int j = 0; j < column; j++)
             {
                 if (0 == m_NodeMatrix[i, j].Number) return false;
                 // end if
@@ -201,9 +179,8 @@ public class CheckerboardModel : System.IDisposable
                 // end if
             } // end for
         } // end for
-        Debug.Log("GameOver");
         return true;
-    } // end CheckGameOver
+    } // end IsGameOver
 
     public void Log()
 	{

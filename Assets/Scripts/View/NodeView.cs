@@ -14,6 +14,14 @@ public class NodeView : MonoBehaviour
         m_Sprite = gameObject.AddComponent<SpriteRenderer>();
         m_MoveAnim = gameObject.AddComponent<NodeMoveAnim>();
         m_ZoomAnim = gameObject.AddComponent<NodeZoomAnim>();
+    } // end Awake
+
+    public Sprite Sprite
+    {
+        set
+        {
+            m_Sprite.sprite = value;
+        }
     }
 
     public event EventHandler AnimationMoveFinished
@@ -46,19 +54,10 @@ public class NodeView : MonoBehaviour
         // end if
         Vector3 target = transform.localPosition + direction * step * ValueUtil.GridOffset;
         m_MoveAnim.Play(target);
-    }
+    } // end ToMove
 
-    public void ToShow(NodeModel nodeModel)
+    public void ToZoom()
     {
-        if (null == nodeModel)
-        {
-            Debug.LogError("ToShow model is null!");
-            m_Sprite.sprite = null;
-            return;
-        }
-        m_Sprite.sprite = SpriteUtil.GetSprite(nodeModel.Number);
-        if (false == nodeModel.IsZoom) return;
-        // end if
         m_ZoomAnim.Play();
-    }
-}
+    } // end ToZoom
+} // end class  

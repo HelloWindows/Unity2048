@@ -32,6 +32,14 @@ public class PathUtil  {
         }
     }
 
+    public static string ViewRecordPath
+    {
+        get
+        {
+            return PersistentDataPath + "/view.bin";
+        }
+    }
+
     private static string[] recordArr;
 
     public static string GetRecordPathWithIndex(int index)

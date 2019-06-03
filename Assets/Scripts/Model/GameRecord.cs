@@ -18,7 +18,7 @@ public class GameRecord {
         }
     }
 
-    public Matrix<NodeModel> Current
+    public Matrix<NodeModel> CurrentFrame
     {
         get
         {
@@ -29,22 +29,22 @@ public class GameRecord {
         }
     }
 
-    public Matrix<NodeModel> Previous
+    public Matrix<NodeModel> PreviousFrame
     {
         get
         {
             if (m_ModelStack.Count <= 1) return null;
             // end if
             m_ModelStack.Pop();
-            return Current;
+            return CurrentFrame;
         }
     }
 
-    public void Push(Matrix<NodeModel> model)
+    public void PushFrame(Matrix<NodeModel> model)
     {
         if (null == model) return;
         // end if
         Matrix<NodeModel> copy = CopyUtil.DeepCopyByBin(model);
         m_ModelStack.Push(copy);
-    } // end Push
+    } // end PushFrame
 } // end class GameRecord 

@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
+        UIManager.Instance.Update();
         if (null == CheckerboardControl) return;
         // end if
         CheckerboardControl.Update(Time.deltaTime, Time.unscaledDeltaTime);
@@ -53,6 +54,12 @@ public class GameManager : MonoBehaviour {
         CheckerboardControl = new CheckerboardControl(checkerboardGo, recordPath);
         UIManager.Instance.OpenForm(new UIGameMenu());
     } // end ContinueGame
+
+    public void WatchVideo()
+    {
+        Global.GameMode = GameMode.Viewing;
+        UIManager.Instance.OpenForm(new UIWatchMenu());
+    } // end WatchVideo
 
     public void ExitGame()
     {

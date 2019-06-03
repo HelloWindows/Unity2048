@@ -32,6 +32,12 @@ public class UIManager {
         // end if
     } // end UIManager
 
+    public void Update()
+    {
+        if (null != m_CurrentUIForm) m_CurrentUIForm.OnUpdate();
+        // end if
+    } // end Update
+
     public void OpenForm(UIForm uiForm)
     {
         if (null != m_CurrentUIForm) m_CurrentUIForm.OnExit();
