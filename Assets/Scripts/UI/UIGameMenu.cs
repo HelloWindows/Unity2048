@@ -18,6 +18,7 @@ public class UIGameMenu : UIForm
         m_GameObject.transform.Find("SaveBtn").GetComponent<Button>().onClick.AddListener(OnClickSaveBtn);
         m_GameObject.transform.Find("BackBtn").GetComponent<Button>().onClick.AddListener(OnClickBackBtn);
         m_ScoreText = m_GameObject.transform.Find("ScoreText/Text").GetComponent<Text>();
+        m_ScoreText.text = "0";
         if (null != GameManager.Instance.CheckerboardControl)
         {
             GameManager.Instance.CheckerboardControl.OnScoreChanged += OnScoreChanged;

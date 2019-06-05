@@ -60,7 +60,7 @@ public class CheckerboardControl : IDisposable
                 m_Model.NodeMatrix = matrix;
             } // end if
         } // end if
-        m_View.PlayZoomAnimation(m_Model.NodeMatrix);
+        m_View.PlayFrameAnimation(m_Model.NodeMatrix);
     } // end CheckerboardControl
 
     public event EventHandler<ScoreChangedEventArgs> OnScoreChanged
@@ -92,7 +92,7 @@ public class CheckerboardControl : IDisposable
 
     public void Undo()
     {
-        if (!Global.Interactable) return;
+        if (!Global.Interactable || m_View.IsPlayingAnimation) return;
         // end if
         Matrix<NodeModel> matrix = m_GameRecord.PreviousFrame;
         matrix = m_GameRecord.PreviousFrame;
@@ -112,37 +112,41 @@ public class CheckerboardControl : IDisposable
     public void Update(float elapseSeconds, float realElapseSeconds)
     {
 #if UNITY_EDITOR
-        if (!Global.Interactable) return;
+        if (!Global.Interactable || m_View.IsPlayingAnimation) return;
         // end if
         if (Input.GetKeyDown(KeyCode.W))
         {
             m_Model.ToUp();
             m_View.PlayMoveAnimation(m_Model.NodeMatrix);
+            return;
         } // end if
 
         if (Input.GetKeyDown(KeyCode.S))
         {
             m_Model.ToDown();
             m_View.PlayMoveAnimation(m_Model.NodeMatrix);
+            return;
         } // end if
 
         if (Input.GetKeyDown(KeyCode.A))
         {
             m_Model.ToLeft();
             m_View.PlayMoveAnimation(m_Model.NodeMatrix);
+            return;
         }
 
         if (Input.GetKeyDown(KeyCode.D))
         {
             m_Model.ToRight();
             m_View.PlayMoveAnimation(m_Model.NodeMatrix);
+            return;
         } // end if
 #endif
     } // end Update
 
     private void OnTouchDropEvent(object sender, TouchDropEventArgs args)
     {
-        if (!Global.Interactable) return;
+        if (!Global.Interactable || m_View.IsPlayingAnimation) return;
         // end if
         Vector3 delta = args.UpPos - args.DownPos;
         if (delta == Vector3.zero) return;
@@ -180,10 +184,8 @@ public class CheckerboardControl : IDisposable
         // end if
         m_GameRecord.PushFrame(m_Model.NodeMatrix);
         m_Model.PushNewNumber();
-        Matrix<NodeModel> matrix = m_Model.NodeMatrix;
-        matrix.Direction = NodeMoveDirection.Null;
-        m_View.PlayZoomAnimation(matrix);
-        m_GameRecord.PushFrame(matrix);
+        m_View.PlayZoomAnimation(m_Model.NodeMatrix);
+        m_GameRecord.PushFrame(m_Model.NodeMatrix);
         SerializeUtil.DataSaveWithPath(m_GameRecord, PathUtil.CurrentRecordPath);
         if (m_Model.IsGameOver() && null != m_GameOverEventHandler)
             m_GameOverEventHandler(this, EventArgs.Empty);

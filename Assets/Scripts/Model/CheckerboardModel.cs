@@ -40,6 +40,7 @@ public class CheckerboardModel : System.IDisposable
 
     public void PushNewNumber() 
 	{
+        m_NodeMatrix.Direction = NodeMoveDirection.Null;
 		List<int> emptyList = new List<int>();
 		for (int i = 0; i < ValueUtil.GridRow; i++)
 		{
@@ -181,20 +182,6 @@ public class CheckerboardModel : System.IDisposable
         } // end for
         return true;
     } // end IsGameOver
-
-    public void Log()
-	{
-		string str = "";
-		for (int i = 0; i < ValueUtil.GridRow; i++)
-		{
-			for (int j = 0; j < ValueUtil.GridColumn; j++)
-			{
-				str += m_NodeMatrix[i, j].Number + " ";
-			}
-			str += '\n';
-		}
-		Debug.Log(str);
-	}
 
     public void Dispose()
     {

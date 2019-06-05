@@ -22,9 +22,9 @@ public class UIStartMenu : UIForm {
         // end if
         m_GameObject.transform.Find("ReadGameBtn").GetComponent<Button>().onClick.AddListener(OnClickReadGame);
         if (File.Exists(PathUtil.ViewRecordPath))
-            m_GameObject.transform.Find("AuthorBtn").GetComponent<Button>().onClick.AddListener(OnClickAuthor);
+            m_GameObject.transform.Find("WatchBtn").GetComponent<Button>().onClick.AddListener(OnClickWatchBtn);
         else
-            m_GameObject.transform.Find("AuthorBtn").GetComponent<Button>().interactable = false;
+            m_GameObject.transform.Find("WatchBtn").GetComponent<Button>().interactable = false;
         // end if
         m_GameObject.transform.Find("ExitBtn").GetComponent<Button>().onClick.AddListener(OnClickExit);
     } // end OnEnter
@@ -56,10 +56,10 @@ public class UIStartMenu : UIForm {
         UIManager.Instance.OpenForm(new UISelectGameProgress());
     } // end OnClickReadGame
 
-    private void OnClickAuthor()
+    private void OnClickWatchBtn()
     {
         GameManager.Instance.WatchVideo();
-    } // end OnClickAuthor
+    } // end OnClickWatchBtn
 
     private void OnClickExit()
     {

@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 114782860202569246}
   - component: {fileID: 114475066496404358}
   m_Layer: 5
-  m_Name: AuthorBtn
+  m_Name: WatchBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -662,7 +662,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u5F00\u53D1\u8005\u7B80\u4ECB"
+  m_Text: "\u89C2\u770B\u8BB0\u5F55"
 --- !u!114 &114782860202569246
 MonoBehaviour:
   m_ObjectHideFlags: 1

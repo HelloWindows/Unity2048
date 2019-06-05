@@ -38,7 +38,7 @@ public class NodeZoomAnim : MonoBehaviour {
 
     private void Update()
     {
-        smooth += Time.deltaTime * 2f;
+        smooth += Time.deltaTime * 3f;
         if (ZoomIn_1()) return;
         // end if
         if (ZoomOut_1()) return;

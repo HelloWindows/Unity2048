@@ -40,7 +40,9 @@ public class CheckerboardView : IDisposable
                 m_NodeMatrix[i, j] = nodeView;
             } // end for
         } // end for
-    } // end Awake
+    } // end CheckerboardView
+
+    public bool IsPlayingAnimation { get; private set; }
 
     public event EventHandler MoveAnimationFinished
     {
@@ -86,6 +88,9 @@ public class CheckerboardView : IDisposable
 
     public void PlayMoveAnimation(Matrix<NodeModel> matrix)
     {
+        if (IsPlayingAnimation) {
+            return;
+        } // end if
         Vector3 direction = matrix.Direction.ToVector3();
         if (direction.Equals(Vector3.zero)) return;
         // end if
@@ -103,10 +108,16 @@ public class CheckerboardView : IDisposable
                 m_NodeMatrix[i, j].ToMove(direction, step);
             } // end for
         } // end for
+        if (m_GridSign < m_MaxGridSign) IsPlayingAnimation = true;
+        // end if
     } // end PlayMoveAnimation
 
     public void PlayZoomAnimation(Matrix<NodeModel> matrix)
     {
+        if (IsPlayingAnimation)
+        {
+            return;
+        } // end if
         Vector3 direction = matrix.Direction.ToVector3();
         if (!direction.Equals(Vector3.zero)) return;
         // end if
@@ -134,6 +145,8 @@ public class CheckerboardView : IDisposable
                 nodeView.ToZoom();
             } // end for
         } // end for
+        if (m_GridSign < m_MaxGridSign) IsPlayingAnimation = true;
+        // end if
     } // end PlayZoomAnimation
 
     private void OnGridMoveFinished(object sender, EventArgs args)  
@@ -141,6 +154,8 @@ public class CheckerboardView : IDisposable
         m_GridSign++;
         if (m_GridSign < m_MaxGridSign) return;
         // end if
+        m_GridSign = 0;
+        IsPlayingAnimation = false;
         if (null != m_MoveAnimationFinishedEventHandler)
             m_MoveAnimationFinishedEventHandler(this, EventArgs.Empty);
         // end if
@@ -151,6 +166,8 @@ public class CheckerboardView : IDisposable
         m_GridSign++;
         if (m_GridSign < m_MaxGridSign) return;
         // end if
+        m_GridSign = 0;
+        IsPlayingAnimation = false;
         if (null != m_ZoomAnimationFinishedEventHandler)
             m_ZoomAnimationFinishedEventHandler(this, EventArgs.Empty);
         // end if
